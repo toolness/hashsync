@@ -1,5 +1,121 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Hashsync - Really Simple Syncing</title>
-<p>Hello.</p>
+<title>Hashsync - Reasonably Simple Syncing</title>
+<style>
+body {
+  width: 640px;
+  margin: 0 auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+input {
+  width: 75%;
+  border: 1px dotted gray;
+  font-family: inherit;
+  background: #f0f0f0;
+  padding: 4px;
+}
+
+#view-url, #control-url {
+  display: none;
+}
+
+h1 {
+  margin-bottom: 0px;
+  text-transform: uppercase;
+}
+
+aside {
+  color: gray;
+  text-transform: lowercase;
+  margin-top: -5px;
+}
+
+a {
+  color: inherit;
+}
+</style>
+<h1>Hashsync</h1>
+<aside>Reasonably Simple Syncing</aside>
+<a href="https://github.com/toolness/hashsync"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/7afbc8b248c68eb468279e8c17986ad46549fb71/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub"></a>
+<p>Here's how to remotely control any HTML presentation that uses its URL's <a href="http://en.wikipedia.org/wiki/Fragment_identifier">fragment identifier</a> for navigation.</p>
+<ol>
+  <li>
+    <p>Copy and paste the following code into your presentation:</p>
+    <p><input type="text" id="html-snippet"></input></p>
+  </li>
+  <li>
+    <p>Paste the URL for your presentation below:</p>
+    <p><input type="text" id="url" autocomplete="off"></input></p>
+  </li>
+  <li id="view-url">
+    <p>Share this URL with your viewers:</p>
+    <p><input type="text"></input></p>
+  </li>
+  <li id="control-url">
+    <p>Use this URL to control the presentation:</p>
+    <p><input type="text"></input></p>
+  </li>
+</ol>
+<div style="display: none">
+  <a href="hashsync.js" id="hashsync-js">hashsync.js</a>
+</div>
 <script src="hashsync.js"></script>
+<script src="jquery.min.js"></script>
+<script>
+// Returns a random integer between min and max
+// Using Math.round() will give you a non-uniform distribution!
+function getRandomInt(min, max)
+{
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function makeRandomString() {
+  var NUM_CHARS = 8;
+  var LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  var string = "";
+
+  for (var i = 0; i < NUM_CHARS; i++)
+    string += LETTERS.charAt(getRandomInt(0, LETTERS.length-1));
+  return string;
+}
+
+function makeViewAndControlURLs(baseURL) {
+  var syncKey = makeRandomString();
+  var syncPass = makeRandomString();
+  var anchor = $('<a></a>').attr("href", baseURL)[0];
+  var url = anchor.protocol + "//" + anchor.host +
+            anchor.pathname;
+
+  // TODO: Merge our querystring args with existing ones.
+
+  var viewURL = url + "?syncMode=view&syncKey=" + syncKey;
+  var controlURL = url + "?syncMode=control&syncKey=" + syncKey + 
+                   "&syncPass=" + syncPass;
+
+  $("#view-url input").val(viewURL);
+  $("#control-url input").val(controlURL);
+  $("#view-url, #control-url").slideDown();
+}
+
+$(window).ready(function() {
+  var href = $("#hashsync-js")[0].href;
+  var html = '<script src="' + href + '" async></' + 'script>';
+  var lastURL = "";
+  
+  $("#html-snippet").val(html);
+  $("#url").bind("change keyup", function() {
+    var url = $(this).val();
+    if (url.length) {
+      if (url != lastURL) {
+        lastURL = url;
+        makeViewAndControlURLs(url);
+      }
+    } else {
+      lastURL = "";
+      $("#view-url, #control-url").slideUp();
+    }
+  });
+});
+</script>
