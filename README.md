@@ -3,6 +3,11 @@ anonymous [slide synchronization server][] to sync the URL hash of
 any web page between a presenter and multiple viewers. It has been
 tested on Firefox, Safari, Chrome, and Internet Explorer 9.
 
+If you just want to use the script to sync remote presentations,
+check out the wizard interface at http://toolness.github.com/hashsync/.
+
+## Querystring API
+
 By default, this script does absolutely nothing. However, if there's
 a querystring parameter in the URL called `syncMode`, this script
 springs into action.
